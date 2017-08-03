@@ -1,6 +1,21 @@
 package models
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/deejross/dep-registry/util"
+)
+
+const (
+	// ArchTar is a tar archive with no compression.
+	ArchTar ArchType = "tar"
+
+	// ArchTarGz is a tar archive with gzip compression.
+	ArchTarGz ArchType = "tgz"
+
+	// ArchZip is a zip archive.
+	ArchZip ArchType = "zip"
+)
 
 var (
 	// ErrImportNotFound indicates that the given Import was not found.
@@ -10,6 +25,9 @@ var (
 	ErrVersionNotFound = errors.New("Version not found")
 )
 
+// ArchType represents an archive type.
+type ArchType string
+
 // Import object.
 type Import struct {
 	ImportURL   string
@@ -18,10 +36,28 @@ type Import struct {
 	ProjectURL  string
 }
 
+// NewImport creates a new Import object.
+func NewImport(url string) *Import {
+	return &Import{
+		ImportURL: url,
+		Name:      url,
+	}
+}
+
 // Version object.
 type Version struct {
 	ImportURL   string
 	Name        string
 	BinID       string
-	ArchiveType string
+	ArchiveType ArchType
+}
+
+// NewVersion creates a new Version object.
+func NewVersion(m *Import, name string, archive ArchType) *Version {
+	return &Version{
+		ImportURL:   m.ImportURL,
+		Name:        name,
+		BinID:       util.UUID4(),
+		ArchiveType: archive,
+	}
 }

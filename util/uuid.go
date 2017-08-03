@@ -10,7 +10,7 @@ func UUID4() string {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
 	if err != nil {
-		return ""
+		panic(err)
 	}
 
 	b[6] = (b[6] & 0x0f) | (4 << 4)
