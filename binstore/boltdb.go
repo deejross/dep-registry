@@ -2,12 +2,12 @@ package binstore
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"io/ioutil"
 
 	"github.com/boltdb/bolt"
 	"github.com/deejross/dep-registry/models"
+	"github.com/deejross/dep-registry/util"
 )
 
 var boltBinBucket = []byte("dep-reg-binstore")
@@ -43,7 +43,7 @@ func (s *BoltDB) Add(v *models.Version, reader io.Reader) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(boltBinBucket)
 		if b.Get(key) != nil {
-			return errors.New("This version already exists for this import and cannot be modified")
+			return util.ErrAlreadyExists
 		}
 
 		val, err := ioutil.ReadAll(reader)
@@ -65,7 +65,7 @@ func (s *BoltDB) Get(v *models.Version) (io.Reader, error) {
 		val := b.Get(key)
 
 		if val == nil {
-			return errors.New("The given version could not be found")
+			return util.ErrNotFound
 		}
 
 		buf = bytes.NewBuffer(val)
