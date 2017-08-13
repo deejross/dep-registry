@@ -30,10 +30,10 @@ type ArchType string
 
 // Import object.
 type Import struct {
-	ImportURL   string
-	Name        string
-	Description string
-	ProjectURL  string
+	ImportURL   string `json:"import_url,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	ProjectURL  string `json:"project_url,omitempty"`
 }
 
 // NewImport creates a new Import object.
@@ -46,10 +46,10 @@ func NewImport(url string) *Import {
 
 // Version object.
 type Version struct {
-	ImportURL   string
-	Name        string
-	BinID       string
-	ArchiveType ArchType
+	ImportURL   string   `json:"import_url,omitempty"`
+	Name        string   `json:"name,omitempty"`
+	BinID       string   `json:"bin_id,omitempty"`
+	ArchiveType ArchType `json:"archive_type,omitempty"`
 }
 
 // NewVersion creates a new Version object.
