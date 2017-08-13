@@ -24,7 +24,7 @@ func NewStoreManager(bin binstore.BinStore, meta metastore.MetaStore) StoreManag
 
 // Add a new Version.
 func (s StoreManager) Add(m *models.Import, v *models.Version, reader io.Reader) error {
-	if err := s.meta.AddUpdateImport(m); err != nil {
+	if err := s.meta.AddImportIfNotExists(m); err != nil {
 		return err
 	}
 	if err := s.meta.AddVersion(v); err != nil {
