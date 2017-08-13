@@ -4,8 +4,11 @@ import "github.com/deejross/dep-registry/models"
 
 // MetaStore represents a metadata store.
 type MetaStore interface {
-	// AddUpdateImport adds or updates an Import.
-	AddUpdateImport(m *models.Import) error
+	// AddUpdateImport adds an Import if it doesn't exist.
+	AddImportIfNotExists(m *models.Import) error
+
+	// UpdateImport updates an import.
+	UpdateImport(m *models.Import) error
 
 	// AddVersion adds a Version to an import.
 	AddVersion(v *models.Version) error
