@@ -15,15 +15,15 @@ type StoreManager struct {
 }
 
 // NewStoreManager creates a new StoreManager.
-func NewStoreManager(bin binstore.BinStore, meta metastore.MetaStore) StoreManager {
-	return StoreManager{
+func NewStoreManager(bin binstore.BinStore, meta metastore.MetaStore) *StoreManager {
+	return &StoreManager{
 		bin:  bin,
 		meta: meta,
 	}
 }
 
 // Add a new Version.
-func (s StoreManager) Add(m *models.Import, v *models.Version, reader io.Reader) error {
+func (s *StoreManager) Add(m *models.Import, v *models.Version, reader io.Reader) error {
 	if err := s.meta.AddImportIfNotExists(m); err != nil {
 		return err
 	}
@@ -34,12 +34,12 @@ func (s StoreManager) Add(m *models.Import, v *models.Version, reader io.Reader)
 }
 
 // Get an Import.
-func (s StoreManager) Get(url string) (*models.Import, error) {
+func (s *StoreManager) Get(url string) (*models.Import, error) {
 	return s.meta.GetImport(url)
 }
 
 // GetVersions gets a list of Versions.
-func (s StoreManager) GetVersions(url string) ([]*models.Version, error) {
+func (s *StoreManager) GetVersions(url string) ([]*models.Version, error) {
 	m, err := s.meta.GetImport(url)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (s StoreManager) GetVersions(url string) ([]*models.Version, error) {
 }
 
 // GetVersion gets a Version.
-func (s StoreManager) GetVersion(url string, versionName string) (*models.Version, error) {
+func (s *StoreManager) GetVersion(url string, versionName string) (*models.Version, error) {
 	m, err := s.meta.GetImport(url)
 	if err != nil {
 		return nil, err
@@ -70,12 +70,12 @@ func (s StoreManager) GetVersion(url string, versionName string) (*models.Versio
 }
 
 // GetVersionBinary downloads the binary for the version.
-func (s StoreManager) GetVersionBinary(v *models.Version) (io.Reader, error) {
+func (s *StoreManager) GetVersionBinary(v *models.Version) (io.Reader, error) {
 	return s.bin.Get(v)
 }
 
 // DeleteImport deletes an import and all its versions.
-func (s StoreManager) DeleteImport(url string) error {
+func (s *StoreManager) DeleteImport(url string) error {
 	versions, err := s.GetVersions(url)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (s StoreManager) DeleteImport(url string) error {
 }
 
 // DeleteVersion deletes a version.
-func (s StoreManager) DeleteVersion(m *models.Import, v *models.Version) error {
+func (s *StoreManager) DeleteVersion(m *models.Import, v *models.Version) error {
 	if err := s.meta.DeleteVersion(m, v); err != nil {
 		return err
 	}
