@@ -73,3 +73,29 @@ func (s StoreManager) GetVersion(url string, versionName string) (*models.Versio
 func (s StoreManager) GetVersionBinary(v *models.Version) (io.Reader, error) {
 	return s.bin.Get(v)
 }
+
+// DeleteImport deletes an import and all its versions.
+func (s StoreManager) DeleteImport(url string) error {
+	versions, err := s.GetVersions(url)
+	if err != nil {
+		return err
+	}
+
+	if err := s.meta.DeleteImport(url); err != nil {
+		return err
+	}
+
+	for _, v := range versions {
+		s.bin.Delete(v)
+	}
+
+	return nil
+}
+
+// DeleteVersion deletes a version.
+func (s StoreManager) DeleteVersion(m *models.Import, v *models.Version) error {
+	if err := s.meta.DeleteVersion(m, v); err != nil {
+		return err
+	}
+	return s.bin.Delete(v)
+}

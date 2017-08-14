@@ -13,4 +13,7 @@ type BinStore interface {
 
 	// Get a binary from the store.
 	Get(v *models.Version) (io.Reader, error)
+
+	// Delete a binary from the store.
+	Delete(v *models.Version) error
 }

@@ -18,4 +18,10 @@ type MetaStore interface {
 
 	// GetVersions gets a list of Versions for an Import.
 	GetVersions(m *models.Import) ([]*models.Version, error)
+
+	// DeleteImport deletes an import and all its versions.
+	DeleteImport(url string) error
+
+	// DeleteVersion deletes a version.
+	DeleteVersion(m *models.Import, v *models.Version) error
 }

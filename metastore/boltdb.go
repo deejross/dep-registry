@@ -142,3 +142,53 @@ func (s *BoltDB) GetVersions(m *models.Import) ([]*models.Version, error) {
 
 	return v, err
 }
+
+// DeleteImport deletes an import and all its versions.
+func (s *BoltDB) DeleteImport(url string) error {
+	key := []byte(url)
+
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(boltMetaBucket)
+		if err := b.Delete(key); err != nil {
+			return err
+		}
+
+		key = append(key, []byte(":versions")...)
+		return b.Delete(key)
+	})
+}
+
+// DeleteVersion deletes a version.
+func (s *BoltDB) DeleteVersion(m *models.Import, v *models.Version) error {
+	key := []byte(v.ImportURL + ":versions")
+
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(boltMetaBucket)
+		versionsB := b.Get(key)
+		var versions []*models.Version
+
+		if versionsB == nil {
+			versions = []*models.Version{}
+		} else {
+			err := json.Unmarshal(versionsB, versions)
+			if err != nil {
+				return err
+			}
+		}
+
+		newVersions := []*models.Version{}
+		for _, ver := range versions {
+			if ver.Name == v.Name {
+				continue
+			}
+			newVersions = append(newVersions, ver)
+		}
+
+		val, err := json.Marshal(newVersions)
+		if err != nil {
+			return err
+		}
+
+		return b.Put(key, val)
+	})
+}

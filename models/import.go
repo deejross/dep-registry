@@ -34,6 +34,7 @@ type Import struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 	ProjectURL  string `json:"project_url,omitempty"`
+	Disabled    bool   `json:"disabled,omitempty"`
 }
 
 // NewImport creates a new Import object.
@@ -50,6 +51,7 @@ type Version struct {
 	Name        string   `json:"name,omitempty"`
 	BinID       string   `json:"bin_id,omitempty"`
 	ArchiveType ArchType `json:"archive_type,omitempty"`
+	Disabled    bool     `json:"disabled,omitempty"`
 }
 
 // NewVersion creates a new Version object.

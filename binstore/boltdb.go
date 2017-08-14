@@ -76,3 +76,13 @@ func (s *BoltDB) Get(v *models.Version) (io.Reader, error) {
 
 	return buf, nil
 }
+
+// Delete a Version from the BinStore.
+func (s *BoltDB) Delete(v *models.Version) error {
+	key := []byte(v.BinID)
+
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(boltBinBucket)
+		return b.Delete(key)
+	})
+}
