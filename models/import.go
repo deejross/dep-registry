@@ -30,11 +30,14 @@ type ArchType string
 
 // Import object.
 type Import struct {
-	ImportURL   string `json:"import_url,omitempty"`
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	ProjectURL  string `json:"project_url,omitempty"`
-	Disabled    bool   `json:"disabled,omitempty"`
+	ImportURL   string   `json:"import_url,omitempty"`
+	Name        string   `json:"name,omitempty"`
+	Description string   `json:"description,omitempty"`
+	ProjectURL  string   `json:"project_url,omitempty"`
+	Disabled    bool     `json:"disabled,omitempty"`
+	Private     bool     `json:"private,omitempty"`
+	Owners      []string `json:"owners,omitempty"`
+	Readers     []string `json:"readers,omitempty"`
 }
 
 // NewImport creates a new Import object.
