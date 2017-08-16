@@ -14,8 +14,8 @@ const envPrefix = "GOREG_"
 // Config object.
 type Config struct {
 	AuthPath      string        `json:"auth_path,omitempty"`
-	BinStorePath  string        `json:"bin_store_path,omitempty"`
-	MetaStorePath string        `json:"meta_store_path,omitempty"`
+	BinStorePath  string        `json:"binstore_path,omitempty"`
+	MetaStorePath string        `json:"metastore_path,omitempty"`
 	SigningKey    string        `json:"signing_key,omitempty"`
 	TokenTTL      time.Duration `json:"token_ttl,omitempty"`
 	Port          string        `json:"port,omitempty"`
