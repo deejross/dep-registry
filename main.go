@@ -41,7 +41,7 @@ func main() {
 	}
 
 	sm := storemanager.NewStoreManager(bs, ms)
-	tm := auth.NewTokenManager([]byte(cfg.SigningKey))
+	tm := auth.NewTokenManager([]byte(cfg.SigningKey), cfg.TokenTTL)
 
 	a, err := auth.Resolve(cfg.AuthPath)
 	if err != nil {

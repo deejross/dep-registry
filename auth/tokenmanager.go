@@ -9,12 +9,14 @@ import (
 // TokenManager object.
 type TokenManager struct {
 	signingKey []byte
+	ttl        time.Duration
 }
 
 // NewTokenManager returns a new TokenManager.
-func NewTokenManager(key []byte) *TokenManager {
+func NewTokenManager(key []byte, ttl time.Duration) *TokenManager {
 	return &TokenManager{
 		signingKey: key,
+		ttl:        ttl,
 	}
 }
 
@@ -23,7 +25,7 @@ func (t *TokenManager) Generate(username string) (string, error) {
 	claims := jwt.StandardClaims{
 		Subject:   username,
 		Issuer:    "dep-registry",
-		ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
+		ExpiresAt: time.Now().Add(t.ttl).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"time"
 
 	"github.com/deejross/dep-registry/util"
 )
@@ -12,11 +13,12 @@ const envPrefix = "GOREG_"
 
 // Config object.
 type Config struct {
-	AuthPath      string `json:"auth_path,omitempty"`
-	BinStorePath  string `json:"bin_store_path,omitempty"`
-	MetaStorePath string `json:"meta_store_path,omitempty"`
-	SigningKey    string `json:"signing_key,omitempty"`
-	Port          string `json:"port,omitempty"`
+	AuthPath      string        `json:"auth_path,omitempty"`
+	BinStorePath  string        `json:"bin_store_path,omitempty"`
+	MetaStorePath string        `json:"meta_store_path,omitempty"`
+	SigningKey    string        `json:"signing_key,omitempty"`
+	TokenTTL      time.Duration `json:"token_ttl,omitempty"`
+	Port          string        `json:"port,omitempty"`
 }
 
 // FromFile gets a Config object from a file.
@@ -55,6 +57,9 @@ func FromEnvironment(c *Config) *Config {
 	if v := os.Getenv(envPrefix + "SIGNING_KEY"); len(v) > 0 {
 		c.SigningKey = v
 	}
+	if v := os.Getenv(envPrefix + "TOKEN_TTL"); len(v) > 0 {
+		c.TokenTTL, _ = time.ParseDuration(v)
+	}
 	if v := os.Getenv(envPrefix + "PORT"); len(v) > 0 {
 		c.Port = v
 	}
@@ -76,6 +81,9 @@ func (c *Config) Validate() error {
 	if len(c.SigningKey) == 0 {
 		log.Println("WARNING: No signing key specified, generating a temporary key")
 		c.SigningKey = util.UUID4()
+	}
+	if c.TokenTTL < time.Minute {
+		log.Println("WARNING: TokenTTL cannot be less than a minute, setting to 24h")
 	}
 	if len(c.Port) == 0 {
 		c.Port = "8080"

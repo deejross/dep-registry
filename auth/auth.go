@@ -20,7 +20,7 @@ type Auth interface {
 	AddUser(user *User) error
 
 	// UpdateUser updates an existing user.
-	UpdateUser(username string, user *User) error
+	UpdateUser(user *User) error
 
 	// SetPassword sets a password for a user.
 	SetPassword(username, password string) error
