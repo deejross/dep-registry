@@ -66,6 +66,10 @@ func (a *UserPassAuth) Login(username, password string) (string, error) {
 	err := a.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(boltAuthBucket)
 		passHash := b.Get(key)
+		if passHash == nil {
+			return ErrUserDoesNotExist
+		}
+
 		if err := ValidatePassword(passHash, password); err != nil {
 			return err
 		}
@@ -153,7 +157,7 @@ func (a *UserPassAuth) GetUser(username string) (*User, error) {
 	}
 
 	key := []byte(username)
-	var user *User
+	user := &User{}
 
 	err := a.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(boltAuthBucket)

@@ -34,7 +34,8 @@ func (t *TokenManager) Generate(username string) (string, error) {
 
 // Validate and return the username for a token.
 func (t *TokenManager) Validate(token string) (string, error) {
-	tok, err := jwt.Parse(token, func(tok *jwt.Token) (interface{}, error) {
+	claims := jwt.StandardClaims{}
+	tok, err := jwt.ParseWithClaims(token, &claims, func(tok *jwt.Token) (interface{}, error) {
 		return t.signingKey, nil
 	})
 	if err != nil {
@@ -48,5 +49,5 @@ func (t *TokenManager) Validate(token string) (string, error) {
 		return "", jwt.ErrInvalidKey
 	}
 
-	return tok.Claims.(jwt.StandardClaims).Subject, nil
+	return claims.Subject, nil
 }
