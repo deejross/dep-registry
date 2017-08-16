@@ -42,7 +42,13 @@ func main() {
 
 	sm := storemanager.NewStoreManager(bs, ms)
 	tm := auth.NewTokenManager([]byte(cfg.SigningKey))
-	gate := gate.NewGate(nil, sm, tm)
+
+	a, err := auth.Resolve(cfg.AuthPath)
+	if err != nil {
+		log.Fatalln("While creating auth:", err)
+	}
+
+	gate := gate.NewGate(a, sm, tm)
 	router := web.NewRouter(gate)
 	log.Println(http.ListenAndServe(":"+cfg.Port, router))
 }

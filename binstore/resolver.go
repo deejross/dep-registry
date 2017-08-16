@@ -14,7 +14,7 @@ func Resolve(path string) (BinStore, error) {
 
 	switch parts[0] {
 	case "boltdb":
-		return NewBoltBinStore(parts[1])
+		return NewBoltBinStore(path)
 	default:
 		return nil, errors.New("Unknown backend: " + parts[0])
 	}

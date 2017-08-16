@@ -12,10 +12,11 @@ const envPrefix = "GOREG_"
 
 // Config object.
 type Config struct {
-	BinStorePath  string
-	MetaStorePath string
-	SigningKey    string
-	Port          string
+	AuthPath      string `json:"auth_path,omitempty"`
+	BinStorePath  string `json:"bin_store_path,omitempty"`
+	MetaStorePath string `json:"meta_store_path,omitempty"`
+	SigningKey    string `json:"signing_key,omitempty"`
+	Port          string `json:"port,omitempty"`
 }
 
 // FromFile gets a Config object from a file.
@@ -42,6 +43,9 @@ func FromEnvironment(c *Config) *Config {
 		c = &Config{}
 	}
 
+	if v := os.Getenv(envPrefix + "AUTH_PATH"); len(v) > 0 {
+		c.AuthPath = v
+	}
 	if v := os.Getenv(envPrefix + "BINSTORE_PATH"); len(v) > 0 {
 		c.BinStorePath = v
 	}
@@ -60,6 +64,9 @@ func FromEnvironment(c *Config) *Config {
 
 // Validate configuration.
 func (c *Config) Validate() error {
+	if len(c.AuthPath) == 0 {
+		c.AuthPath = "userpass://auth.bolt"
+	}
 	if len(c.BinStorePath) == 0 {
 		c.BinStorePath = "boltdb://binstore.bolt"
 	}

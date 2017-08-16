@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"io/ioutil"
+	"strings"
 
 	"github.com/boltdb/bolt"
 	"github.com/deejross/dep-registry/models"
@@ -19,7 +20,7 @@ type BoltDB struct {
 
 // NewBoltBinStore creates a new BoltDB interface.
 func NewBoltBinStore(address string) (BinStore, error) {
-	db, err := bolt.Open(address, 0600, nil)
+	db, err := bolt.Open(strings.Replace(address, "boltdb://", "", 1), 0600, nil)
 	if err != nil {
 		return nil, err
 	}
