@@ -144,6 +144,118 @@ func (s *BoltDB) GetVersions(m *models.Import) ([]*models.Version, error) {
 	return v, err
 }
 
+// DisableImport disables an import and all its versions.
+func (s *BoltDB) DisableImport(url string) error {
+	key := []byte(url)
+
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(boltMetaBucket)
+		mB := b.Get(key)
+		m := &models.Import{}
+		if mB == nil {
+			return nil
+		}
+
+		if err := json.Unmarshal(mB, m); err != nil {
+			return err
+		}
+
+		m.Disabled = true
+		mB, err := json.Marshal(m)
+		if err != nil {
+			return err
+		}
+		return b.Put(key, mB)
+	})
+}
+
+// DisableVersion disables a version.
+func (s *BoltDB) DisableVersion(m *models.Import, v *models.Version) error {
+	key := []byte(v.ImportURL + ":versions")
+
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(boltMetaBucket)
+		versionsB := b.Get(key)
+		versions := []*models.Version{}
+		if versionsB == nil {
+			return nil
+		}
+
+		if err := json.Unmarshal(versionsB, versions); err != nil {
+			return err
+		}
+
+		for _, ver := range versions {
+			if v.Name == ver.Name {
+				ver.Disabled = true
+				break
+			}
+		}
+
+		versionsB, err := json.Marshal(m)
+		if err != nil {
+			return err
+		}
+		return b.Put(key, versionsB)
+	})
+}
+
+// EnableImport enables an import and all its versions.
+func (s *BoltDB) EnableImport(url string) error {
+	key := []byte(url)
+
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(boltMetaBucket)
+		mB := b.Get(key)
+		m := &models.Import{}
+		if mB == nil {
+			return nil
+		}
+
+		if err := json.Unmarshal(mB, m); err != nil {
+			return err
+		}
+
+		m.Disabled = false
+		mB, err := json.Marshal(m)
+		if err != nil {
+			return err
+		}
+		return b.Put(key, mB)
+	})
+}
+
+// EnableVersion enables a version.
+func (s *BoltDB) EnableVersion(m *models.Import, v *models.Version) error {
+	key := []byte(v.ImportURL + ":versions")
+
+	return s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket(boltMetaBucket)
+		versionsB := b.Get(key)
+		versions := []*models.Version{}
+		if versionsB == nil {
+			return nil
+		}
+
+		if err := json.Unmarshal(versionsB, versions); err != nil {
+			return err
+		}
+
+		for _, ver := range versions {
+			if v.Name == ver.Name {
+				ver.Disabled = false
+				break
+			}
+		}
+
+		versionsB, err := json.Marshal(m)
+		if err != nil {
+			return err
+		}
+		return b.Put(key, versionsB)
+	})
+}
+
 // DeleteImport deletes an import and all its versions.
 func (s *BoltDB) DeleteImport(url string) error {
 	key := []byte(url)

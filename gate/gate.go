@@ -48,7 +48,7 @@ func (g *Gate) ParseToken(token string) (*auth.User, error) {
 }
 
 // CanUser determines if a user can perform an action, returns nil if successful.
-func (g *Gate) CanUser(user *auth.User, m *models.Import, write bool) error {
+func (g *Gate) CanUser(user *auth.User, m *models.Import, write, admin bool) error {
 	if user.Disabled {
 		return ErrNotAuthorized
 	}
@@ -59,6 +59,8 @@ func (g *Gate) CanUser(user *auth.User, m *models.Import, write bool) error {
 		}
 	} else if user.Admin {
 		return nil
+	} else if admin && !user.Admin {
+		return ErrNotAuthorized
 	} else if write {
 		for _, name := range m.Owners {
 			if user.Username == name {
@@ -90,7 +92,7 @@ func (g *Gate) Add(token string, m *models.Import, v *models.Version, reader io.
 		return err
 	}
 
-	if err := g.CanUser(user, m, true); err != nil {
+	if err := g.CanUser(user, m, true, false); err != nil {
 		return err
 	}
 
@@ -109,7 +111,7 @@ func (g *Gate) Get(token, url string) (*models.Import, error) {
 		return nil, err
 	}
 
-	if err := g.CanUser(user, m, false); err != nil {
+	if err := g.CanUser(user, m, false, false); err != nil {
 		return nil, err
 	}
 
@@ -128,7 +130,7 @@ func (g *Gate) GetVersions(token, url string) ([]*models.Version, error) {
 		return nil, err
 	}
 
-	if err := g.CanUser(user, m, false); err != nil {
+	if err := g.CanUser(user, m, false, false); err != nil {
 		return nil, err
 	}
 
@@ -147,7 +149,7 @@ func (g *Gate) GetVersion(token, url, versionName string) (*models.Version, erro
 		return nil, err
 	}
 
-	if err := g.CanUser(user, m, false); err != nil {
+	if err := g.CanUser(user, m, false, false); err != nil {
 		return nil, err
 	}
 
@@ -166,7 +168,7 @@ func (g *Gate) GetVersionBinary(token, url, versionName string) (io.Reader, erro
 		return nil, err
 	}
 
-	if err := g.CanUser(user, m, false); err != nil {
+	if err := g.CanUser(user, m, false, false); err != nil {
 		return nil, err
 	}
 
@@ -176,6 +178,82 @@ func (g *Gate) GetVersionBinary(token, url, versionName string) (io.Reader, erro
 	}
 
 	return g.sm.GetVersionBinary(v)
+}
+
+// DisableImport disables an import and all its versions.
+func (g *Gate) DisableImport(token, url string) error {
+	user, err := g.ParseToken(token)
+	if err != nil {
+		return err
+	}
+
+	m, err := g.sm.Get(url)
+	if err != nil {
+		return err
+	}
+
+	if err := g.CanUser(user, m, true, true); err != nil {
+		return err
+	}
+
+	return g.sm.DisableImport(url)
+}
+
+// DisableVersion disables a version.
+func (g *Gate) DisableVersion(token, url, version string) error {
+	user, err := g.ParseToken(token)
+	if err != nil {
+		return err
+	}
+
+	m, err := g.sm.Get(url)
+	if err != nil {
+		return err
+	}
+
+	if err := g.CanUser(user, m, true, true); err != nil {
+		return err
+	}
+
+	return g.sm.DisableVersion(url, version)
+}
+
+// EnableImport enables an import and all its versions.
+func (g *Gate) EnableImport(token, url string) error {
+	user, err := g.ParseToken(token)
+	if err != nil {
+		return err
+	}
+
+	m, err := g.sm.Get(url)
+	if err != nil {
+		return err
+	}
+
+	if err := g.CanUser(user, m, true, true); err != nil {
+		return err
+	}
+
+	return g.sm.EnableImport(url)
+}
+
+// EnableVersion enables a version.
+func (g *Gate) EnableVersion(token, url, version string) error {
+	user, err := g.ParseToken(token)
+	if err != nil {
+		return err
+	}
+
+	m, err := g.sm.Get(url)
+	if err != nil {
+		return err
+	}
+
+	if err := g.CanUser(user, m, true, true); err != nil {
+		return err
+	}
+
+	return g.sm.EnableVersion(url, version)
 }
 
 // DeleteImport deletes an import and all its versions.
@@ -190,7 +268,7 @@ func (g *Gate) DeleteImport(token, url string) error {
 		return err
 	}
 
-	if err := g.CanUser(user, m, true); err != nil {
+	if err := g.CanUser(user, m, true, true); err != nil {
 		return err
 	}
 
@@ -209,7 +287,7 @@ func (g *Gate) DeleteVersion(token, url, versionName string) error {
 		return err
 	}
 
-	if err := g.CanUser(user, m, false); err != nil {
+	if err := g.CanUser(user, m, true, true); err != nil {
 		return err
 	}
 

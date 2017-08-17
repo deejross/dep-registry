@@ -19,6 +19,18 @@ type MetaStore interface {
 	// GetVersions gets a list of Versions for an Import.
 	GetVersions(m *models.Import) ([]*models.Version, error)
 
+	// DisableImport disables an import and all its versions.
+	DisableImport(url string) error
+
+	// DisableVersion disables a version.
+	DisableVersion(m *models.Import, v *models.Version) error
+
+	// EnableImport enables an import and all its versions.
+	EnableImport(url string) error
+
+	// EnableVersion enables a version.
+	EnableVersion(m *models.Import, v *models.Version) error
+
 	// DeleteImport deletes an import and all its versions.
 	DeleteImport(url string) error
 

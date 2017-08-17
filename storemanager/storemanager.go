@@ -60,6 +60,10 @@ func (s *StoreManager) GetVersion(url string, versionName string) (*models.Versi
 		return nil, err
 	}
 
+	if len(versionName) == 0 {
+		return versions[len(versions)-1], nil
+	}
+
 	for _, v := range versions {
 		if v.Name == versionName {
 			return v, nil
@@ -72,6 +76,70 @@ func (s *StoreManager) GetVersion(url string, versionName string) (*models.Versi
 // GetVersionBinary downloads the binary for the version.
 func (s *StoreManager) GetVersionBinary(v *models.Version) (io.Reader, error) {
 	return s.bin.Get(v)
+}
+
+// DisableImport disables an import and all its versions.
+func (s *StoreManager) DisableImport(url string) error {
+	return s.meta.DisableImport(url)
+}
+
+// DisableVersion disables a version.
+func (s *StoreManager) DisableVersion(url, version string) error {
+	m, err := s.meta.GetImport(url)
+	if err != nil {
+		return err
+	}
+
+	versions, err := s.meta.GetVersions(m)
+	if err != nil {
+		return err
+	}
+
+	var v *models.Version
+	for _, ver := range versions {
+		if ver.Name == version {
+			v = ver
+			break
+		}
+	}
+
+	if v != nil {
+		return s.meta.DisableVersion(m, v)
+	}
+
+	return nil
+}
+
+// EnableImport enables an import and all its versions.
+func (s *StoreManager) EnableImport(url string) error {
+	return s.meta.EnableImport(url)
+}
+
+// EnableVersion enables a version.
+func (s *StoreManager) EnableVersion(url, version string) error {
+	m, err := s.meta.GetImport(url)
+	if err != nil {
+		return err
+	}
+
+	versions, err := s.meta.GetVersions(m)
+	if err != nil {
+		return err
+	}
+
+	var v *models.Version
+	for _, ver := range versions {
+		if ver.Name == version {
+			v = ver
+			break
+		}
+	}
+
+	if v != nil {
+		return s.meta.EnableVersion(m, v)
+	}
+
+	return nil
 }
 
 // DeleteImport deletes an import and all its versions.
