@@ -46,10 +46,13 @@ The registry can be configured using either a JSON config file or environment va
 
 Configuration has sane defaults and will print a warning to `stdout` identifying any settings that need to be adjusted. Running without any configuration generates a new signing key at every start, invalidating any previously generated tokens. It will also default to using BoltDB for all backends.
 
-To use a JSON config file, pass the filename as the first argument to the executable. An bare-minimum JSON config file might look like this:
+To use a JSON config file, pass the filename as the first argument to the executable. A bare-minimum JSON config file might look like this:
 ```json
 {
     "signing_key": "some-super-secret-key",
     "token_ttl": "24h"
 }
 ```
+
+## Contributions
+Please help out by opening issues and submitting PR's. This could be the future of Go package management, so your input matters!
