@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/deejross/dep-registry/gate"
@@ -39,6 +40,15 @@ func (r *Router) WriteError(w http.ResponseWriter, status int, err string) {
 	json.NewEncoder(w).Encode(errM)
 }
 
+// WriteOK writes an OK message to the response.
+func (r *Router) WriteOK(w http.ResponseWriter) {
+	okM := map[string]string{
+		"result": "OK",
+	}
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(okM)
+}
+
 // API handles API requests.
 func (r *Router) API(w http.ResponseWriter, req *http.Request, path []string) {
 	switch path[0] {
@@ -51,7 +61,32 @@ func (r *Router) API(w http.ResponseWriter, req *http.Request, path []string) {
 		}
 	case "projects":
 		if len(path) > 1 {
-			// TODO: finish
+			importURL, err := url.PathUnescape(path[1])
+			if err != nil {
+				r.WriteError(w, 400, "Invalid URL: "+err.Error())
+				return
+			}
+
+			version := ""
+			if len(path) > 2 {
+				version = path[2]
+			}
+
+			if req.Method == "GET" {
+				r.GetBinary(w, req, importURL, version)
+			} else if req.Method == "PUT" {
+				if len(version) == 0 {
+					r.WriteError(w, http.StatusMethodNotAllowed, "Version is required when using PUT")
+					return
+				}
+			} else if req.Method == "DELETE" {
+				delete := req.URL.Query().Get("remove") == "true"
+				if len(version) == 0 {
+					r.DeleteDisableImport(w, req, importURL, delete)
+				} else {
+					r.DeleteDisableVersion(w, req, importURL, version, delete)
+				}
+			}
 		}
 	default:
 		r.WriteError(w, http.StatusNotFound, "Not found")
